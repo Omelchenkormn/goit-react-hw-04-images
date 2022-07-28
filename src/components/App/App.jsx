@@ -1,5 +1,5 @@
 // import React, { Component } from 'react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { fetchImages } from 'services/api';
 import { ToastContainer } from 'react-toastify';
 import { toast } from 'react-toastify';
@@ -19,19 +19,28 @@ const App = () => {
   const [largeImage, setLargeImage] = useState('');
   const [error, setError] = useState(null);
 
-  const getImages = async () => {
+  const getImages = useCallback(async () => {
     setIsLoading(true);
     try {
       const { hits } = await fetchImages(query, currentPage);
-      setItems(prev => [...prev, ...hits]);
-      setCurrentPage(prev => prev + 1);
+      if (currentPage === 1) {
+        if (hits.length === 0) {
+          toast.error('oh not found');
+        } else {
+          setItems(prev => [...prev, ...hits]);
+          setCurrentPage(prev => prev + 1);
+        }
+      } else {
+        setItems(prev => [...prev, ...hits]);
+        setCurrentPage(prev => prev + 1);
+      }
     } catch (error) {
       console.log('error');
       setError(error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [query, currentPage]);
 
   useEffect(() => {
     if (!query) {
@@ -39,6 +48,7 @@ const App = () => {
     }
     setItems([]);
     getImages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
   function handleSubmit(query) {

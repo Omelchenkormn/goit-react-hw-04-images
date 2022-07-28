@@ -10,6 +10,7 @@ const ModalWindow = ({ onClose, fullImg }) => {
     return () => {
       window.removeEventListener('keydown', turnOffModal);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const turnOffModal = event => {
